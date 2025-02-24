@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería desde MongoDB</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin: 20px;
+            color: #333;
+        }
+        #image-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 10px;
+        }
+        img {
+            margin: 10px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            width: 200px;
+            height: auto;
+            transition: transform 0.2s;
+        }
+        img:hover {
+            transform: scale(1.1);
+            border-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Galería de Imágenes</h1>
+    <div id="image-container"></div>
+
+    <script>
+        async function fetchImages() {
+            try {
+                const response = await fetch('http://localhost:4321/images');
+                if (!response.ok) throw new Error('Error al obtener imágenes');
+    
+                const images = await response.json();
+                console.log('📷 Imágenes obtenidas:', images);
+    
+                const container = document.getElementById('image-container');
+                container.innerHTML = '';
+    
+                images.forEach(image => {
+                    if (!image.url || image.url.length < 100) { // Verificar si el campo "url" existe
+                        console.error('❌ Imagen corrupta o vacía:', image);
+                        return;
+                    }
+    
+                    const imgElement = document.createElement('img');
+                    imgElement.src = image.url; // Usar "url" en lugar de "data"
+                    imgElement.alt = image.title || 'Imagen';
+                    container.appendChild(imgElement);
+                });
+            } catch (error) {
+                console.error('❌ Error al cargar imágenes:', error);
+            }
+        }
+    
+        fetchImages();
+    </script>
+    
+</body>
+</html>
