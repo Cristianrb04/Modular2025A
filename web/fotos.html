@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería desde MongoDB</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin: 20px;
+            color: #333;
+        }
+        #menu {
+            background: #333;
+            padding: 10px;
+        }
+        #menu a {
+            color: white;
+            text-decoration: none;
+            margin: 10px;
+        }
+        #image-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 10px;
+        }
+        img {
+            margin: 10px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            width: 200px;
+            height: auto;
+            transition: transform 0.2s;
+        }
+        img:hover {
+            transform: scale(1.1);
+            border-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu">
+        <a href="historico.html">Histórico</a>
+        <a href="fotos.html">Galería</a>
+    </div>
+    <h1>Galería de Imágenes</h1>
+    <input type="text" id="search-key" placeholder="Ingrese clave">
+    <button onclick="fetchImages()">Buscar</button>
+    <div id="image-container"></div>
+
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        async function fetchImages() {
+            let key = document.getElementById("search-key").value || getQueryParam('key');
+            if (!key) {
+                alert('Ingrese una clave para buscar imágenes');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:4321/images/${key}`);
+                if (!response.ok) throw new Error('Error al obtener imágenes');
+
+                const images = await response.json();
+                console.log('📷 Imágenes obtenidas:', images);
+
+                const container = document.getElementById('image-container');
+                container.innerHTML = '';
+
+                if (images.length === 0) {
+                    container.innerHTML = '<p>No se encontraron imágenes</p>';
+                    return;
+                }
+
+                images.forEach(image => {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = image.url;
+                    imgElement.alt = image.title || 'Imagen';
+                    container.appendChild(imgElement);
+                });
+            } catch (error) {
+                console.error('❌ Error al cargar imágenes:', error);
+            }
+        }
+
+        window.onload = fetchImages;
+    </script>
+</body>
+</html>

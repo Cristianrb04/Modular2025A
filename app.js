@@ -28,9 +28,26 @@ app.get('/ventana', (req, res) => {
 app.get('/historico', (req, res) => {
     res.sendFile(path.join(__dirname, './web/historico.html'));
 });
+app.get('/fotos', (req, res) => {
+    res.sendFile(path.join(__dirname, './web/fotos.html'));
+});
+app.get('/fotos/:key', (req, res) => {
+    const { key } = req.params;
+    res.redirect(`/fotos.html?key=${key}`);  // Redirige con la key en la URL
+});
 app.get('/images', async (req, res) => {
     try {
         const images = await Image.find(); // Obtener todas las imágenes de MongoDB
+        res.json(images);
+    } catch (error) {
+        console.error('Error al obtener imágenes:', error);
+        res.status(500).json({ error: 'Error al obtener imágenes' });
+    }
+});
+app.get('/images/:key', async (req, res) => {
+    try {
+        const { key } = req.params;
+        const images = await Image.find({ key: key }); // Filtrar imágenes por la clave
         res.json(images);
     } catch (error) {
         console.error('Error al obtener imágenes:', error);
