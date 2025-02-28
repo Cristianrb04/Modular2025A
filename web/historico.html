@@ -31,10 +31,17 @@
             justify-content: center;
             padding: 10px;
         }
-        img {
+        .image-item {
             margin: 10px;
             border: 2px solid #ddd;
             border-radius: 10px;
+            padding: 10px;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        img {
             width: 200px;
             height: auto;
             transition: transform 0.2s;
@@ -54,6 +61,19 @@
     <div id="image-container"></div>
 
     <script>
+        function formatDateTime(datetimeStr) {
+            if (!datetimeStr || datetimeStr.length !== 14) return "Fecha: 0000-00-00 00:00:00";
+            
+            const year = datetimeStr.substring(0, 4) || "0000";
+            const month = datetimeStr.substring(4, 6) || "00";
+            const day = datetimeStr.substring(6, 8) || "00";
+            const hour = datetimeStr.substring(8, 10) || "00";
+            const minute = datetimeStr.substring(10, 12) || "00";
+            const second = datetimeStr.substring(12, 14) || "00";
+            
+            return `Fecha: ${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        }
+
         async function fetchImages() {
             try {
                 const response = await fetch('http://localhost:4321/images');
@@ -66,15 +86,24 @@
                 container.innerHTML = '';
     
                 images.forEach(image => {
-                    if (!image.url || image.url.length < 100) { // Verificar si el campo "url" existe
+                    if (!image.url || image.url.length < 100) {
                         console.error('❌ Imagen corrupta o vacía:', image);
                         return;
                     }
     
+                    const imageItem = document.createElement('div');
+                    imageItem.classList.add('image-item');
+    
                     const imgElement = document.createElement('img');
-                    imgElement.src = image.url; // Usar "url" en lugar de "data"
+                    imgElement.src = image.url;
                     imgElement.alt = image.title || 'Imagen';
-                    container.appendChild(imgElement);
+                    
+                    const dateElement = document.createElement('p');
+                    dateElement.textContent = formatDateTime(image.key);
+    
+                    imageItem.appendChild(imgElement);
+                    imageItem.appendChild(dateElement);
+                    container.appendChild(imageItem);
                 });
             } catch (error) {
                 console.error('❌ Error al cargar imágenes:', error);
@@ -83,6 +112,5 @@
     
         fetchImages();
     </script>
-    
 </body>
 </html>
